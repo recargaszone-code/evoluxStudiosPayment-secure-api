@@ -6,16 +6,15 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
-// 🔐 API KEY protegida no Render ENV
+// 🔐 API Key protegida
 const API_KEY = process.env.RBZIN_API_KEY;
 
 // Função genérica para processar pagamentos
 async function processarPagamento(endpoint, metodo, valor, numero) {
   const url = `https://rbzinstore.com/api/${endpoint}`;
-
   const response = await axios.post(
     url,
     { metodo, valor, numero },
@@ -26,11 +25,10 @@ async function processarPagamento(endpoint, metodo, valor, numero) {
       }
     }
   );
-
   return response.data;
 }
 
-// MPESA
+// 🔹 MPesa
 app.post("/pagar/mpesa", async (req, res) => {
   try {
     const { valor, numero } = req.body;
@@ -42,11 +40,12 @@ app.post("/pagar/mpesa", async (req, res) => {
     );
     res.json(data);
   } catch (err) {
+    console.error(err.message);
     res.status(500).json({ error: "Erro ao processar MPesa" });
   }
 });
 
-// EMOLA
+// 🔹 eMola
 app.post("/pagar/emola", async (req, res) => {
   try {
     const { valor, numero } = req.body;
@@ -58,11 +57,12 @@ app.post("/pagar/emola", async (req, res) => {
     );
     res.json(data);
   } catch (err) {
+    console.error(err.message);
     res.status(500).json({ error: "Erro ao processar eMola" });
   }
 });
 
-// VISA
+// 🔹 Visa
 app.post("/pagar/visa", async (req, res) => {
   try {
     const { valor, numero } = req.body;
@@ -74,11 +74,11 @@ app.post("/pagar/visa", async (req, res) => {
     );
     res.json(data);
   } catch (err) {
+    console.error(err.message);
     res.status(500).json({ error: "Erro ao processar Visa" });
   }
 });
 
+// Inicialização do servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log("🔐 RBZIN Secure API rodando na porta " + PORT);
-});
+app.listen(PORT, () => console.log(`🔐 RBZIN Secure API rodando na porta ${PORT}`));
